@@ -62,22 +62,7 @@ public class PuzzleMap : UnityBehaviour {
 		if (_curDropTime < dropTime) {
 			_curDropTime += Time.deltaTime;
 			if ( _curDropTime > dropTime ) {
-				for ( int i = 0; i < 8; i++ ) {
-					int blankNum = 0;
-					for ( int j = 0; j < 12; j++ ) {
-						if ( _arrBlock[j,i] == null ) {
-							blankNum++;
-						}
-						else {
-							Move ( new BlockPos(j,i), new BlockPos(-blankNum,0) );
-						}
-					}
-
-					for ( int j = 11; j >= 0; j-- ) {
-						if ( _arrBlock[j,i] != null ) break;
-						CreateBlock(j,i);
-					}
-				}
+				DropLine ();
 			}
 		}
 		else {
@@ -87,15 +72,11 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	public void Delete( int floor, int row ) {
-		/*
 		if (_curDropTime < dropTime) {
 			_curDropTime = dropTime;
-			foreach ( BlockPos pos in _listBlankPos ) {
-				DropLine(pos.Floor, pos.Row);
-			}
-			_listBlankPos.Clear();
+			DropLine();
 		}
-		*/
+
 		Destroy (_arrBlock [floor, row]);
 		_arrBlock [floor, row] = null;
 		WaitForDrop (floor, row);
@@ -103,15 +84,12 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	public void Delete( List<BlockPos> listPos ) {
-		/*
+
 		if (_curDropTime < dropTime) {
 			_curDropTime = dropTime;
-			foreach ( BlockPos pos in _listBlankPos ) {
-				DropLine(pos.Floor, pos.Row);
-			}
-			_listBlankPos.Clear();
+			DropLine();
 		}
-*/
+
 		foreach ( BlockPos pos in listPos ) {
 			if ( _arrBlock[pos.Floor, pos.Row] == null ) continue;
 			Destroy (_arrBlock [pos.Floor, pos.Row]);
@@ -128,14 +106,23 @@ public class PuzzleMap : UnityBehaviour {
 		_curDropTime = 0.0f;
 	}
 
-	public void DropLine( int floor, int row ) {
-		for( int i = floor+1; i < 12; i++ ) {
-			if ( _arrBlock[i,row] != null ) Drop( i, row );
+	public void DropLine() {
+		for ( int i = 0; i < 8; i++ ) {
+			int blankNum = 0;
+			for ( int j = 0; j < 12; j++ ) {
+				if ( _arrBlock[j,i] == null ) {
+					blankNum++;
+				}
+				else {
+					Move ( new BlockPos(j,i), new BlockPos(-blankNum,0) );
+				}
+			}
+			
+			for ( int j = 11; j >= 0; j-- ) {
+				if ( _arrBlock[j,i] != null ) break;
+				CreateBlock(j,i);
+			}
 		}
-
-		CreateBlock(11,row);
-
-
 	}
 
 	private void BrakeBlock() {
@@ -225,10 +212,14 @@ public class PuzzleMap : UnityBehaviour {
 
 	public void MoveLeft( int floor, int row ) {
 		Move(new BlockPos(floor,row), new BlockPos(0,-1) );
+		DropLine();
+		BrakeBlock();
 	}
 
 	public void MoveRight( int floor, int row ) {
 		Move(new BlockPos(floor,row), new BlockPos(0,1) );
+		DropLine();
+		BrakeBlock();
 	}
 
 	private void Move( BlockPos pos, BlockPos dir ) {
