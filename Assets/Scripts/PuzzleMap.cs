@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -18,8 +18,6 @@ public class PuzzleMap : UnityBehaviour {
 		public int Row;
 	}
 
-	List<BlockPos> _listBlankPos = new List<BlockPos>();
-
 	const float brakeTime = 1.0f;
 	float _curBrakeTime = 1.0f;
 
@@ -32,6 +30,8 @@ public class PuzzleMap : UnityBehaviour {
 				CreateBlock(i,j);
 			}
 		}
+
+
 	}
 
 	void CreateBlock(int floor, int row) {
@@ -44,31 +44,7 @@ public class PuzzleMap : UnityBehaviour {
 		_arrBlock[floor,row].GetComponent<Block>().Floor = floor;
 		_arrBlock[floor,row].GetComponent<Block>().Row = row;
 		int type = Random.Range(0,3);
-		int dontThisTypeRow = -1;
-		int dontThisTypeFloor = -1;
 
-		if ( row > 1 ) {
-			if ( _arrBlock[floor,row-1] != null && _arrBlock[floor,row-1].GetComponent<Block>().Type == type ) {
-				if ( _arrBlock[floor,row-2] != null && _arrBlock[floor,row-2].GetComponent<Block>().Type == type ) {
-					dontThisTypeRow = type;
-					while ( dontThisTypeRow == type ) {
-						type = Random.Range(0,3);
-					}
-				}
-			}
-		}
-
-		if ( floor > 1 ) {
-			if ( _arrBlock[floor-1,row] != null && _arrBlock[floor-1,row].GetComponent<Block>().Type == type ) {
-				if ( _arrBlock[floor-2,row] != null && _arrBlock[floor-2,row].GetComponent<Block>().Type == type ) {
-					dontThisTypeFloor = type;
-					while ( dontThisTypeFloor == type || dontThisTypeRow == type ) {
-						type = Random.Range(0,3);
-					}
-				}
-			}
-		}
-		
 		_arrBlock[floor,row].GetComponent<Block>().Type = type;
 		
 		if ( type == 1 ) _arrBlock[floor,row].GetComponent<UIButton>().defaultColor = new Color( 0, 1, 0 );
@@ -82,21 +58,36 @@ public class PuzzleMap : UnityBehaviour {
 	
 	// Update is called once per frame
 	public override void OnUpdate () {
+		Debug.Log( _curDropTime );
 		if (_curDropTime < dropTime) {
 			_curDropTime += Time.deltaTime;
 			if ( _curDropTime > dropTime ) {
-				foreach ( BlockPos pos in _listBlankPos ) {
-					DropLine(pos.Floor, pos.Row);
-				}
-				_listBlankPos.Clear();
+				for ( int i = 0; i < 8; i++ ) {
+					int blankNum = 0;
+					for ( int j = 0; j < 12; j++ ) {
+						if ( _arrBlock[j,i] == null ) {
+							blankNum++;
+						}
+						else {
+							Move ( new BlockPos(j,i), new BlockPos(-blankNum,0) );
+						}
+					}
 
+					for ( int j = 11; j >= 0; j-- ) {
+						if ( _arrBlock[j,i] != null ) break;
+						CreateBlock(j,i);
+					}
+				}
 			}
 		}
+		else {
+			BrakeBlock();
+		}
 
-		BrakeBlock();
 	}
 
 	public void Delete( int floor, int row ) {
+		/*
 		if (_curDropTime < dropTime) {
 			_curDropTime = dropTime;
 			foreach ( BlockPos pos in _listBlankPos ) {
@@ -104,6 +95,7 @@ public class PuzzleMap : UnityBehaviour {
 			}
 			_listBlankPos.Clear();
 		}
+		*/
 		Destroy (_arrBlock [floor, row]);
 		_arrBlock [floor, row] = null;
 		WaitForDrop (floor, row);
@@ -111,16 +103,17 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	public void Delete( List<BlockPos> listPos ) {
+		/*
 		if (_curDropTime < dropTime) {
 			_curDropTime = dropTime;
 			foreach ( BlockPos pos in _listBlankPos ) {
 				DropLine(pos.Floor, pos.Row);
 			}
 			_listBlankPos.Clear();
-			//BrakeBlock();
 		}
-
+*/
 		foreach ( BlockPos pos in listPos ) {
+			if ( _arrBlock[pos.Floor, pos.Row] == null ) continue;
 			Destroy (_arrBlock [pos.Floor, pos.Row]);
 			_arrBlock [pos.Floor, pos.Row] = null;
 		}
@@ -129,21 +122,15 @@ public class PuzzleMap : UnityBehaviour {
 
 	public void WaitForDrop( int floor, int row ) {
 		_curDropTime = 0.0f;
-		_listBlankPos.Clear();
-		_listBlankPos.Add ( new BlockPos(floor,row) );
 	}
 
 	public void WaitForDrop( List<BlockPos> listPos ) {
 		_curDropTime = 0.0f;
-		_listBlankPos.Clear();
-		foreach ( BlockPos pos in listPos ) {
-			_listBlankPos.Add ( pos );
-		}
 	}
 
 	public void DropLine( int floor, int row ) {
 		for( int i = floor+1; i < 12; i++ ) {
-			Drop( i, row );
+			if ( _arrBlock[i,row] != null ) Drop( i, row );
 		}
 
 		CreateBlock(11,row);
@@ -153,6 +140,8 @@ public class PuzzleMap : UnityBehaviour {
 
 	private void BrakeBlock() {
 		ArrayList list = new ArrayList();
+
+		List<BlockPos> listPos = new List<BlockPos>();
 
 		//floor chk
 		for (int i = 0; i < 12; i++) {
@@ -164,79 +153,94 @@ public class PuzzleMap : UnityBehaviour {
 					type = _arrBlock[i, j].GetComponent<Block>().Type;
 				}
 
-				if ( type != sequenceType ) {
-					if ( sequenceCount >= 3 ) {
-						List<BlockPos> listPos = new List<BlockPos>();
-						for ( int k = 1; k <= sequenceCount; k++ ) {
-							Debug.Log( "Floor : " + i + ", Row : " + (j-k).ToString() );
-							listPos.Add ( new BlockPos(i, j-k) );
-						}
 
-						Delete ( listPos );
+				if ( type == sequenceType ) {
+					sequenceCount++;
+					if (type == 0 ) sequenceCount = 0;
+
+					if ( sequenceCount == 3 ) {
+
+						listPos.Add ( new BlockPos(i, j-2) );
+						listPos.Add ( new BlockPos(i, j-1) );
+						listPos.Add ( new BlockPos(i, j) );
+						Debug.Log( "Floor : " + i + ", Row : " + (j-2).ToString() );
+						Debug.Log( "Floor : " + i + ", Row : " + (j-1).ToString() );
+						Debug.Log( "Floor : " + i + ", Row : " + (j).ToString() );
 					}
+					else if ( sequenceCount > 3 ) {
+						listPos.Add ( new BlockPos(i, j) );
+						Debug.Log( "Floor : " + i + ", Row : " + (j).ToString() );
+					}
+				}
+				else {
 					sequenceType = type;
-					sequenceCount = 0;
+					sequenceCount = 1;
 				}
 
-				if ( type == 0 ) {
-					sequenceCount = 0;
-				}
-
-				sequenceCount++;
 			}
 		}
+
+		for ( int j = 0; j < 8; j++ ) {
+			int sequenceType = 0;
+			int sequenceCount = 0;
+			for ( int i = 0; i < 12; i++ ) {
+				int type = 0;
+				if ( _arrBlock[i, j] != null ) {
+					type = _arrBlock[i, j].GetComponent<Block>().Type;
+				}
+				
+				
+				if ( type == sequenceType ) {
+					sequenceCount++;
+					if (type == 0 ) sequenceCount = 0;
+					
+					if ( sequenceCount == 3 ) {
+						
+						listPos.Add ( new BlockPos(i-2, j) );
+						listPos.Add ( new BlockPos(i-1, j) );
+						listPos.Add ( new BlockPos(i, j) );
+						Debug.Log( "Floor : " + i + ", Row : " + (j-2).ToString() );
+						Debug.Log( "Floor : " + i + ", Row : " + (j-1).ToString() );
+						Debug.Log( "Floor : " + i + ", Row : " + (j).ToString() );
+					}
+					else if ( sequenceCount > 3 ) {
+						listPos.Add ( new BlockPos(i, j) );
+						Debug.Log( "Floor : " + i + ", Row : " + (j).ToString() );
+					}
+				}
+				else {
+					sequenceType = type;
+					sequenceCount = 1;
+				}
+				
+			}
+		}
+
+		if ( listPos.Count > 0 ) Delete ( listPos );
 	}
 
 	public void Drop( int floor, int row ) {
-		if (floor == 0)	return;
-		if (_arrBlock [floor-1, row] != null)	return;
-		Move (MOVE_DIR.MOVE_DOWN, floor, row);
+		Move(new BlockPos(floor,row), new BlockPos(-1,0) );
 	}
 
 	public void MoveLeft( int floor, int row ) {
-		if (row == 0) return;
-		if (_arrBlock [floor, row - 1] != null)	return;
-		Move (MOVE_DIR.MOVE_LEFT, floor, row);
+		Move(new BlockPos(floor,row), new BlockPos(0,-1) );
 	}
 
 	public void MoveRight( int floor, int row ) {
-		if (row == 7) return;
-		if (_arrBlock [floor, row + 1] != null)	return;
-		Move (MOVE_DIR.MOVE_RIGHT, floor, row);
+		Move(new BlockPos(floor,row), new BlockPos(0,1) );
 	}
 
-	public enum MOVE_DIR{
-		MOVE_DOWN,
-		MOVE_RIGHT,
-		MOVE_LEFT,
-	};
+	private void Move( BlockPos pos, BlockPos dir ) {
+		if ( pos.Floor + dir.Floor < 0 || pos.Floor + dir.Floor > 11 ) return;
+		if ( pos.Row + dir.Row < 0 || pos.Row + dir.Row > 8  ) return;
+		if ( _arrBlock[pos.Floor+dir.Floor, pos.Row+dir.Row] != null ) return;
 
-	private void Move( MOVE_DIR dir, int floor, int row ) {
-		int dirFloor = 0;
-		int dirRow = 0;
-		switch (dir) {
-		case MOVE_DIR.MOVE_DOWN:
-			dirFloor = -1;
-			break;
-		case MOVE_DIR.MOVE_LEFT:
-			dirRow = -1;
-			break;
-		case MOVE_DIR.MOVE_RIGHT:
-			dirRow = 1;
-			break;
-		}
+		_arrBlock [pos.Floor+dir.Floor,pos.Row+dir.Row] = _arrBlock[pos.Floor, pos.Row];
+		_arrBlock [pos.Floor, pos.Row] = null;
+		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].GetComponent<Block> ().Floor = pos.Floor+dir.Floor;
+		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].GetComponent<Block> ().Row = pos.Row+dir.Row;
+		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].transform.localPosition = new Vector3 (40 * (pos.Row+dir.Row) - 40*4, 40 * (pos.Floor+dir.Floor) - 40*6);
 
-		_arrBlock [floor+dirFloor,row+dirRow] = _arrBlock[floor,row];
-		_arrBlock [floor, row] = null;
-		_arrBlock [floor+dirFloor, row+dirRow].GetComponent<Block> ().Floor = floor+dirFloor;
-		_arrBlock [floor+dirFloor, row+dirRow].GetComponent<Block> ().Row = row+dirRow;
-		_arrBlock [floor+dirFloor, row+dirRow].transform.localPosition = new Vector3 (40 * (row+dirRow) - 40*4, 40 * (floor +dirFloor) - 40*6);
-
-		if (dir == MOVE_DIR.MOVE_LEFT) {
-			DropLine( floor, row );
-		}
-		else if ( dir == MOVE_DIR.MOVE_RIGHT ) {
-			DropLine( floor, row );
-		}
 	}
 }
