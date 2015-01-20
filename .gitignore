@@ -1,6 +1,11 @@
-Library
-Temp
-*. pidb
-*. unityproj
-* .. sln
-*. userprefs
+.DS_Store
+
+/[Ll]ibrary/
+/[Oo]bj/
+/[Tt]emp/
+
+/*.csproj
+/*.sln
+/*.userprefs
+/*.unityproj
+/*.DotSettings
