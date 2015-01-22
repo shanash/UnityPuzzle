@@ -7,6 +7,7 @@ public class CustomInput : UnitySingleton<CustomInput> {
 
 	public override void OnAwake ()
 	{
+
 	}
 	
 	public void Foo ()
@@ -24,15 +25,23 @@ public class CustomInput : UnitySingleton<CustomInput> {
 	
 	// Update is called once per frame
 	public override void OnUpdate () {
-	
+		if (Input.GetMouseButtonDown(0)) {
+			Debug.Log("Pressed left click.");
+		}
+		
+		if (Input.GetMouseButtonDown(1)) {
+			Debug.Log("Pressed right click.");
+		}
+
+
 	}
 
 	public override void OnUpdateGUI () {
+
 		Event currentEvent = Event.current;
 		if (currentEvent.isMouse) {
 			MousePos = new Vector3 (currentEvent.mousePosition.x - Screen.width/2, -currentEvent.mousePosition.y + Screen.height/2);
 			// AND DO THE REST
-		}
-		
+		}	
 	}
 }

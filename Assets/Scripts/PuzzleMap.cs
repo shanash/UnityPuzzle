@@ -2,45 +2,48 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+public struct BlockPos {
+	public BlockPos( int floor, int row ) {
+		Floor = floor;
+		Row = row;
+	}
+	public int Floor;
+	public int Row;
+}
+
 public class PuzzleMap : UnityBehaviour {
 
-	GameObject[,] _arrBlock;
+	public UILabel ComboLabel;
 
-	const float dropTime = 2.0f;
-	float _curDropTime = 2.0f;
+	private const int MAXFLOOR_NUM = 12;
+	private const int FLOOR_NUM = 5;
+	private const int ROW_NUM = 8;
 
-	public struct BlockPos {
-		public BlockPos( int floor, int row ) {
-			Floor = floor;
-			Row = row;
-		}
-		public int Floor;
-		public int Row;
-	}
+	private GameObject[,] _arrBlock;
 
-	const float brakeTime = 1.0f;
-	float _curBrakeTime = 1.0f;
+	private const float dropTime = 2.0f;
+	private float _curDropTime = 2.0f;
+
+	private int _comboCount = 0;
 
 	public override void OnAwake () {
-		_arrBlock = new GameObject[12, 8];
-		GameObject prefabBlock = Resources.Load("Prefabs/Block") as GameObject;
+		_arrBlock = new GameObject[MAXFLOOR_NUM, ROW_NUM];
 
-		for (int i = 0; i < 12; i++) {
-			for ( int j = 0; j < 8; j++ ) {
+		for (int i = 0; i < MAXFLOOR_NUM; i++) {
+			for ( int j = 0; j < ROW_NUM; j++ ) {
 				CreateBlock(i,j);
 			}
 		}
 
-
 	}
 
-	void CreateBlock(int floor, int row) {
+	private void CreateBlock(int floor, int row) {
 		GameObject prefabBlock = Resources.Load ("Prefabs/Block") as GameObject;
 
 		_arrBlock[floor,row] = Instantiate(prefabBlock) as GameObject;
 		_arrBlock[floor,row].transform.parent = transform;
 		_arrBlock[floor,row].transform.localScale = new Vector3(1,1);
-		_arrBlock[floor,row].transform.localPosition = new Vector3( 40*row - 40*4, 40*floor - 40*6);
+		_arrBlock[floor,row].transform.localPosition = new Vector3( 40*row -80, 40*floor -110 );
 		_arrBlock[floor,row].GetComponent<Block>().Floor = floor;
 		_arrBlock[floor,row].GetComponent<Block>().Row = row;
 		int type = Random.Range(0,3);
@@ -58,7 +61,7 @@ public class PuzzleMap : UnityBehaviour {
 	
 	// Update is called once per frame
 	public override void OnUpdate () {
-		Debug.Log( _curDropTime );
+//		Debug.Log( _curDropTime );
 		if (_curDropTime < dropTime) {
 			_curDropTime += Time.deltaTime;
 			if ( _curDropTime > dropTime ) {
@@ -67,8 +70,17 @@ public class PuzzleMap : UnityBehaviour {
 		}
 		else {
 			BrakeBlock();
+			if ( _curDropTime > dropTime ) {
+				_comboCount = 0;
+				ComboLabel.text = "";
+			}
+			else {
+				_comboCount++;
+				Debug.Log( "COMBO : " + _comboCount );
+				ComboLabel.text = _comboCount + " COMBO";
+			}
 		}
-
+//		Debug.Log( "X : " + _arrBlock[0,0].transform.localPosition.x +", Y : " +  _arrBlock[0,0].transform.localPosition.y );
 	}
 
 	public void Delete( int floor, int row ) {
@@ -107,9 +119,9 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	public void DropLine() {
-		for ( int i = 0; i < 8; i++ ) {
+		for ( int i = 0; i < ROW_NUM; i++ ) {
 			int blankNum = 0;
-			for ( int j = 0; j < 12; j++ ) {
+			for ( int j = 0; j < MAXFLOOR_NUM; j++ ) {
 				if ( _arrBlock[j,i] == null ) {
 					blankNum++;
 				}
@@ -118,7 +130,7 @@ public class PuzzleMap : UnityBehaviour {
 				}
 			}
 			
-			for ( int j = 11; j >= 0; j-- ) {
+			for ( int j = MAXFLOOR_NUM-1; j >= 0; j-- ) {
 				if ( _arrBlock[j,i] != null ) break;
 				CreateBlock(j,i);
 			}
@@ -126,15 +138,13 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	private void BrakeBlock() {
-		ArrayList list = new ArrayList();
-
 		List<BlockPos> listPos = new List<BlockPos>();
 
 		//floor chk
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < FLOOR_NUM; i++) {
 			int sequenceType = 0;
 			int sequenceCount = 0;
-			for ( int j = 0; j < 8; j++ ) {
+			for ( int j = 0; j < ROW_NUM; j++ ) {
 				int type = 0;
 				if ( _arrBlock[i, j] != null ) {
 					type = _arrBlock[i, j].GetComponent<Block>().Type;
@@ -167,10 +177,11 @@ public class PuzzleMap : UnityBehaviour {
 			}
 		}
 
-		for ( int j = 0; j < 8; j++ ) {
+		//row check
+		for ( int j = 0; j < ROW_NUM; j++ ) {
 			int sequenceType = 0;
 			int sequenceCount = 0;
-			for ( int i = 0; i < 12; i++ ) {
+			for ( int i = 0; i < FLOOR_NUM; i++ ) {
 				int type = 0;
 				if ( _arrBlock[i, j] != null ) {
 					type = _arrBlock[i, j].GetComponent<Block>().Type;
@@ -223,15 +234,15 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	private void Move( BlockPos pos, BlockPos dir ) {
-		if ( pos.Floor + dir.Floor < 0 || pos.Floor + dir.Floor > 11 ) return;
-		if ( pos.Row + dir.Row < 0 || pos.Row + dir.Row > 8  ) return;
+		if ( pos.Floor + dir.Floor < 0 || pos.Floor + dir.Floor >= MAXFLOOR_NUM ) return;
+		if ( pos.Row + dir.Row < 0 || pos.Row + dir.Row >= ROW_NUM  ) return;
 		if ( _arrBlock[pos.Floor+dir.Floor, pos.Row+dir.Row] != null ) return;
 
 		_arrBlock [pos.Floor+dir.Floor,pos.Row+dir.Row] = _arrBlock[pos.Floor, pos.Row];
 		_arrBlock [pos.Floor, pos.Row] = null;
 		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].GetComponent<Block> ().Floor = pos.Floor+dir.Floor;
 		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].GetComponent<Block> ().Row = pos.Row+dir.Row;
-		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].transform.localPosition = new Vector3 (40 * (pos.Row+dir.Row) - 40*4, 40 * (pos.Floor+dir.Floor) - 40*6);
+		_arrBlock [pos.Floor+dir.Floor, pos.Row+dir.Row].transform.localPosition = new Vector3 (40 * (pos.Row+dir.Row) - 80, 40 * (pos.Floor+dir.Floor) - 110);
 
 	}
 }

@@ -39,13 +39,21 @@ public class Block : UnityBehaviour {
 		// this time move blog left or right
 		if (!_chkPress) return;
 
-		Debug.Log ("OnDragOut : " + Floor + ", " + Row);
-
-		if (CustomInput.Instance.MousePos.y > transform.localPosition.y + 20 || 
-		    CustomInput.Instance.MousePos.y < transform.localPosition.y - 20)
-			return;
-
 		PuzzleMap map = gameObject.transform.parent.GetComponent<PuzzleMap> ();
+
+		Debug.Log ("OnDragOut : " + Floor + ", " + Row);
+		Debug.Log( "CustomInput.Instance.MousePos.y : " + (CustomInput.Instance.MousePos.y ) );
+		Debug.Log( "transform.localPosition.y : " + transform.localPosition.y );
+
+
+		if (CustomInput.Instance.MousePos.y  > transform.localPosition.y + 20 || 
+		    CustomInput.Instance.MousePos.y  < transform.localPosition.y - 20) {
+			Debug.Log("Fail");
+			return;
+		}
+		Debug.Log("Through");
+
+
 
 		if (CustomInput.Instance.MousePos.x > transform.localPosition.x && Row < 7) {
 			Debug.Log ("Right");
