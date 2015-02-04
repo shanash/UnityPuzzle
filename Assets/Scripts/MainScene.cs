@@ -36,16 +36,16 @@ public class SceneManager : UnityBehaviour {
 
 public class MainScene : UnityBehaviour {
 
-	public override void OnAwake() {
+	public override void CM_Awake() {
 		DontDestroyOnLoad (this);
 	}
 
 	// Use this for initialization
-	public override void OnStart () {
+	public override void CM_Start () {
 	}
 	
 	// Update is called once per frame
-	public override void OnUpdate () {
+	public override void CM_Update () {
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			this.OnPressBack ();
 		}

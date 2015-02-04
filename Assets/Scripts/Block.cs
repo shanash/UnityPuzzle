@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Block : UnityBehaviour {
@@ -12,11 +12,11 @@ public class Block : UnityBehaviour {
 	bool _chkPress;
 
 	// Use this for initialization
-	public override void OnStart () {
+	public override void CM_Start () {
 	}
 	
 	// Update is called once per frame
-	public override void OnUpdate () {
+	public override void CM_Update () {
 	}
 
 	void OnClick() {

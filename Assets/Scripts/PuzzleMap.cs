@@ -26,7 +26,7 @@ public class PuzzleMap : UnityBehaviour {
 
 	private int _comboCount = 0;
 
-	public override void OnAwake () {
+	public override void CM_Awake () {
 		_arrBlock = new GameObject[MAXFLOOR_NUM, ROW_NUM];
 
 		for (int i = 0; i < MAXFLOOR_NUM; i++) {
@@ -55,12 +55,12 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	// Use this for initialization
-	public override void OnStart () {
+	public override void CM_Start () {
 		Debug.Log (_arrBlock [0, 0]);
 	}
 	
 	// Update is called once per frame
-	public override void OnUpdate () {
+	public override void CM_Update () {
 //		Debug.Log( _curDropTime );
 		if (_curDropTime < dropTime) {
 			_curDropTime += Time.deltaTime;

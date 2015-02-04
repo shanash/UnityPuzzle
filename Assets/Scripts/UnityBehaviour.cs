@@ -3,38 +3,47 @@ using System.Collections;
 
 public class UnityBehaviour : MonoBehaviour {
 
-	public virtual void OnAwake() {}
-	public virtual void OnStart() {}
-	public virtual void OnUpdate() {}
-	public virtual void OnUpdateGUI() {}
-	public virtual void OnQuit() {}
-	public virtual void OnAppQuit() {}
+	public virtual void CM_Awake() {}
+	public virtual void CM_Start() {}
+	public virtual void CM_Update() {}
+	public virtual void CM_OnGUI() {}
+	public virtual void CM_OnDestroy() {}
+	public virtual void CM_OnApplicationQuit() {}
+	public virtual void CM_OnMouseDown() {}
+	public virtual void CM_OnMouseUp() {}
 
 	protected void Awake() {
-		this.OnAwake ();
+		this.CM_Awake ();
 	}
 
 	// Use this for initialization
 	void Start () {
-		this.OnStart ();
+		this.CM_Start ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		this.OnUpdate ();
+		this.CM_Update ();
 	}
 	
 	void OnDestroy() {
-		this.OnQuit();
+		this.CM_OnDestroy();
 	}
 
 	void OnApplicationQuit() {
-		this.OnAppQuit ();
+		this.CM_OnApplicationQuit ();
 	}
 
 	void OnGUI() {
-		this.OnUpdateGUI ();
+		this.CM_OnGUI ();
+	}
 
+	protected void OnMouseDown() {
+		this.CM_OnMouseDown();
+	}
+
+	protected void OnMouseUp() {
+		this.CM_OnMouseUp(); 
 	}
 }
 

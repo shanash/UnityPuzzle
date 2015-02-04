@@ -166,8 +166,8 @@ MonoBehaviour:
   scalingStyle: 1
   manualWidth: 1280
   manualHeight: 280
-  minimumHeight: 320
-  maximumHeight: 1536
+  minimumHeight: 280
+  maximumHeight: 280
   fitWidth: 0
   fitHeight: 1
   adjustByDPI: 0
@@ -364,7 +364,7 @@ GameObject:
   - 81: {fileID: 1378388206}
   m_Layer: 5
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
