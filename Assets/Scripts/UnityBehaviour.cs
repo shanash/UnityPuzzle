@@ -38,11 +38,11 @@ public class UnityBehaviour : MonoBehaviour {
 		this.CM_OnGUI ();
 	}
 
-	void OnMouseDown() {
+	protected void OnMouseDown() {
 		this.CM_OnMouseDown();
 	}
 
-	void OnMouseUp() {
+	protected void OnMouseUp() {
 		this.CM_OnMouseUp(); 
 	}
 }
