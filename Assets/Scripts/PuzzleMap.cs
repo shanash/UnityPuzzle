@@ -84,14 +84,9 @@ public class PuzzleMap : UnityBehaviour {
 	}
 
 	public void Delete( int floor, int row ) {
-		if (_curDropTime < dropTime) {
-			_curDropTime = dropTime;
-			DropLine();
-		}
-
-		Destroy (_arrBlock [floor, row]);
-		_arrBlock [floor, row] = null;
-		WaitForDrop (floor, row);
+		List<BlockPos> listPos = new List<BlockPos>();
+		listPos.Add ( new BlockPos( floor, row ) );
+		Delete ( listPos );
 
 	}
 
