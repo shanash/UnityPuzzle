@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+// for test modify
+
 public struct BlockPos {
 	public BlockPos( int floor, int row ) {
 		Floor = floor;
