@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Block : InputBehaviour {
+public class Block : MonoBehaviour {
 
 	public int Floor;
 	public int Row;
@@ -9,14 +9,17 @@ public class Block : InputBehaviour {
 //	public bool crashable;
 	public int Type;
 
-	bool _chkPress;
+	private bool _chkPress = false;
 
 	// Use this for initialization
-	public override void IP_Start () {
+	public void Start () {
+	}
+
+	public void OnDestory() {
 	}
 	
 	// Update is called once per frame
-	public override void IP_Update () {
+	public void Update () {
 	}
 
 	void OnClick() {
@@ -41,32 +44,29 @@ public class Block : InputBehaviour {
 		//if (!_chkPress) return;
 
 		PuzzleMap map = gameObject.transform.parent.GetComponent<PuzzleMap> ();
+		Vector2 mouse = InputManager.Instance.Mouse;
 
 		Debug.Log ("OnDragOut : " + Floor + ", " + Row);
-		Debug.Log( "CustomInput.Instance.MousePos.y : " + (_mousePos.y ) );
+		Debug.Log( "CustomInput.Instance.MousePos.y : " + (mouse.y ) );
 		Debug.Log( "transform.localPosition.y : " + transform.localPosition.y );
 
-
-		if (_mousePos.y  > transform.localPosition.y + 20 || 
-		    _mousePos.y  < transform.localPosition.y - 20) {
+		if (mouse.y  > transform.localPosition.y + 20 || 
+		    mouse.y  < transform.localPosition.y - 20) {
 			Debug.Log("Fail");
 			return;
 		}
+
 		Debug.Log("Through");
 
-
-
-		if (_mousePos.x > transform.localPosition.x && Row < 7) {
+		if (mouse.x > transform.localPosition.x && Row < 7) {
 			Debug.Log ("Right");
 			map.MoveRight( Floor, Row );
 		} 
-		else if (_mousePos.x < transform.localPosition.x && Row > 0 )  {
+		else if (mouse.x < transform.localPosition.x && Row > 0 )  {
 			Debug.Log("Left");
 			map.MoveLeft( Floor, Row );
 		}
 
 		_chkPress = false;
-
 	}
-
 }
