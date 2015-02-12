@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InputBehaviour : UnityBehaviour {
+public class InputBehaviour : MonoBehaviour {
 	
 	public virtual void IP_Awake() {}
 	public virtual void IP_Start() {}
@@ -24,7 +24,7 @@ public class InputBehaviour : UnityBehaviour {
 
 	protected Vector2 _mousePos;
 
-	public override void CM_Awake() {
+	public void Awake() {
 		_begin0 += onTouch;
 		_end0 += onTouch;
 		_move0 += onTouch;
@@ -32,12 +32,12 @@ public class InputBehaviour : UnityBehaviour {
 	}
 	
 	// Use this for initialization
-	public override void CM_Start () {
+	public void Start () {
 		this.IP_Start ();
 	}
 	
 	// Update is called once per frame
-	public override void CM_Update () {
+	public void Update () {
 #if UNITY_EDITOR
 		if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
 			int id = 0;
@@ -127,23 +127,23 @@ public class InputBehaviour : UnityBehaviour {
 		this.IP_Update ();
 	}
 	
-	public override void CM_OnDestroy() {
+	public void OnDestroy() {
 		this.IP_OnDestroy();
 	}
 	
-	public override void CM_OnApplicationQuit() {
+	public void OnApplicationQuit() {
 		this.IP_OnApplicationQuit ();
 	}
 	
-	public override void CM_OnGUI() {
+	public void OnGUI() {
 		this.IP_OnGUI ();
 	}
 	
-	public override void CM_OnMouseDown() {
+	public void OnMouseDown() {
 		this.IP_OnMouseDown();
 	}
 	
-	public override void CM_OnMouseUp() {
+	public void OnMouseUp() {
 		this.IP_OnMouseUp(); 
 	}
 
