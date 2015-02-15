@@ -38,7 +38,7 @@ public class Block : InputBehaviour {
 	void OnDragOut() {
 		// this time move blog left or right
 		Debug.Log ("OnDragOut");
-		//if (!_chkPress) return;
+		if (!_chkPress) return;
 
 		PuzzleMap map = gameObject.transform.parent.GetComponent<PuzzleMap> ();
 
