@@ -23,7 +23,7 @@ public class Block : MonoBehaviour {
 	}
 
 	void OnClick() {
-//		if (!crashable)	return;
+		//		if (!crashable)	return;
 		PuzzleMap map = gameObject.transform.parent.GetComponent<PuzzleMap> ();
 		map.Delete(Floor, Row);
 	}
@@ -41,7 +41,7 @@ public class Block : MonoBehaviour {
 	void OnDragOut() {
 		// this time move blog left or right
 		Debug.Log ("OnDragOut");
-		//if (!_chkPress) return;
+		if (!_chkPress) return;
 
 		PuzzleMap map = gameObject.transform.parent.GetComponent<PuzzleMap> ();
 		Vector2 mouse = InputManager.Instance.Mouse;

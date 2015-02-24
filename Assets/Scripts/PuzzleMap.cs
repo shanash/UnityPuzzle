@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+// for test modify
+
 public struct BlockPos {
 	public BlockPos( int floor, int row ) {
 		Floor = floor;
@@ -64,13 +66,20 @@ public class PuzzleMap : MonoBehaviour {
 //		Debug.Log( _curDropTime );
 		if (_curDropTime < dropTime) {
 			_curDropTime += Time.deltaTime;
+			Debug.Log(_curDropTime);
+
+			if ( _listDeleteBlockPos != null ) {
+
+			}
+
 			if ( _curDropTime > dropTime ) {
-				DropLine ();
+				Delete ();
+				DropLine();
 			}
 		}
 		else {
 			BrakeBlock();
-			if ( _curDropTime > dropTime ) {
+			if ( _curDropTime >= dropTime ) {
 				_comboCount = 0;
 				ComboLabel.text = "";
 			}
@@ -83,6 +92,18 @@ public class PuzzleMap : MonoBehaviour {
 //		Debug.Log( "X : " + _arrBlock[0,0].transform.localPosition.x +", Y : " +  _arrBlock[0,0].transform.localPosition.y );
 	}
 
+	public void Delete() {
+		if ( _listDeleteBlockPos == null ) return;
+		foreach ( BlockPos pos in _listDeleteBlockPos ) {
+			if ( _arrBlock[pos.Floor, pos.Row] == null ) continue;
+			Destroy (_arrBlock [pos.Floor, pos.Row]);
+			_arrBlock [pos.Floor, pos.Row] = null;
+		}
+
+		_listDeleteBlockPos.Clear();
+		_listDeleteBlockPos = null;
+	}
+
 	public void Delete( int floor, int row ) {
 		List<BlockPos> listPos = new List<BlockPos>();
 		listPos.Add ( new BlockPos( floor, row ) );
@@ -90,12 +111,15 @@ public class PuzzleMap : MonoBehaviour {
 
 	}
 
-	public void Delete( List<BlockPos> listPos ) {
-
+	public void InstanceDelete() {
 		if (_curDropTime < dropTime) {
 			_curDropTime = dropTime;
 			DropLine();
 		}
+	}
+
+	public void Delete( List<BlockPos> listPos ) {
+		InstanceDelete();
 
 		foreach ( BlockPos pos in listPos ) {
 			if ( _arrBlock[pos.Floor, pos.Row] == null ) continue;
@@ -209,7 +233,25 @@ public class PuzzleMap : MonoBehaviour {
 			}
 		}
 
-		if ( listPos.Count > 0 ) Delete ( listPos );
+//		if ( listPos.Count > 0 ) Delete ( listPos );
+		if ( listPos.Count > 0 ) WaitForDelete( listPos );
+	}
+
+	private List<BlockPos> _listDeleteBlockPos;
+
+	public void WaitForDelete( List<BlockPos> listPos ) {
+		InstanceDelete();
+
+		_curDropTime = 0.0f;
+		_listDeleteBlockPos = listPos;
+		/*
+		foreach ( BlockPos pos in listPos ) {
+			if ( _arrBlock[pos.Floor, pos.Row] == null ) continue;
+			Destroy (_arrBlock [pos.Floor, pos.Row]);
+			_arrBlock [pos.Floor, pos.Row] = null;
+		}
+		WaitForDrop (listPos);
+		*/
 	}
 
 	public void Drop( int floor, int row ) {
@@ -219,13 +261,17 @@ public class PuzzleMap : MonoBehaviour {
 	public void MoveLeft( int floor, int row ) {
 		Move(new BlockPos(floor,row), new BlockPos(0,-1) );
 		DropLine();
-		BrakeBlock();
+		_curDropTime = dropTime;
+		//BrakeBlock();
+
 	}
 
 	public void MoveRight( int floor, int row ) {
 		Move(new BlockPos(floor,row), new BlockPos(0,1) );
 		DropLine();
-		BrakeBlock();
+		_curDropTime = dropTime;
+		//BrakeBlock();
+
 	}
 
 	private void Move( BlockPos pos, BlockPos dir ) {
